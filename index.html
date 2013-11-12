@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Biosphere</title>
+	<meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+  	<meta name="apple-touch-fullscreen" content="yes">
+  	<meta name="HandheldFriendly" content="true" />
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>	
+	<script type="text/javascript" src="scripts/jquery.touchy.min.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<style type="text/css">
+		* {
+	      -webkit-touch-callout: none; 
+	      -webkit-user-select: none;
+	    }
+	    html, body {margin: 0; padding: 0; overflow: hidden}
+	    #pointer { position: absolute; top:-1000px; left:-1000px; width: 50px; margin-left: -25px; margin-top: -25px; }
+	</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<img id="pointer" src="/images/bacteria.png" />
+</body>
+
+<script type="text/javascript">
+	lastPoint = [null, null];
+	function touchStart(event) {
+		event.preventDefault();
+		sendUpdate();		
+	}
+	function touchMove(event) {
+		if (lastPoint[0]) {
+	      	var delta = (lastPoint[0] - event.pageX) + (lastPoint[1] - event.pageY);
+	      	var currentHue = jQuery.Color($(document.body).css("background-color")).hue();
+	      	var newColor = jQuery.Color({hue: currentHue + delta * 0.3, saturation: 1, lightness: 0.5});
+//	      	$(document.body).css('background-color', newColor);
+      	}
+      	lastPoint = [(event.pageX - window.innerWidth/2)/circleRadius, -(event.pageY - window.innerHeight/2)/circleRadius];
+      	drawLastPoint();
+      	sendUpdate();
+      	event.preventDefault();
+	}
+	function touchEnd(event) {
+		sendUpdate();
+	//	lastPoint = [null, null];
+	}
+
+	var handleTouchyDrag = function (e, phase, $target, data) {
+    		var delta = (data.movePoint.x - data.lastMovePoint.x) + (data.movePoint.y - data.lastMovePoint.y);
+	      	var currentHue = jQuery.Color($(document.body).css("background-color")).hue();
+	      	var newColor = jQuery.Color({hue: currentHue + delta * 0.3, saturation: 1, lightness: 0.5});
+//	      	$(document.body).css('background-color', newColor);
+	      	lastPoint = [(data.movePoint.x - window.innerWidth/2)/circleRadius, -(data.movePoint.y - window.innerHeight)/circleRadius];
+	      	drawLastPoint();
+	      	sendUpdate();
+	};
+	$(document.body).bind('touchy-drag', handleTouchyDrag);
+
+	function drawLastPoint() {
+		var x = window.innerWidth/2 + lastPoint[0] * circleRadius;
+		var y = window.innerHeight/2 - lastPoint[1] * circleRadius;
+		//console.log(bacteria);
+		bacteria.css('top', y);
+		bacteria.css('left', x);
+	}
+
+	function sendUpdate() {
+		if (lastPoint[0]) {
+			socket.emit('updateBacteria', {x:lastPoint[0], y:lastPoint[1]});
+		}		
+	}
+
+	function drawCircle() {
+		var canvas = document.getElementById('canvas');
+	    var context = canvas.getContext('2d');
+
+	    circleRadius = 0.90 * Math.min(canvas.width/2, canvas.height/2);
+	    var centerX = canvas.width / 2;
+	    var centerY = canvas.height / 2;
+	      context.beginPath();
+	      context.arc(centerX, centerY, circleRadius, 0, 2 * Math.PI, false);
+	      context.fillStyle = 'lightgray';
+	      context.fill();
+	      context.lineWidth = 5;
+	      context.strokeStyle = '#003300';
+	      context.stroke();
+	}
+
+	document.body.addEventListener('touchstart', touchStart, false);
+	document.body.addEventListener('mousedown', touchStart, false);
+
+	document.body.addEventListener('touchmove', touchMove, false);
+	document.body.addEventListener('mousemove', touchMove, false);
+
+	
+    document.body.addEventListener('touchend', touchEnd, false);
+    document.body.addEventListener('mouseup', touchEnd, false);
+
+    window.onresize = function() {
+      $(document.body).width(window.innerWidth).height(window.innerHeight);
+      $("#canvas").remove();
+      $(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
+      bacteria = $('#pointer');
+      drawCircle();
+      drawLastPoint();
+    }
+ 
+    $(function() {
+      var r = 0.9 * Math.random();
+      var angle = 2 * Math.random() * Math.PI;
+      lastPoint = [r * Math.cos(angle), r * Math.sin(angle)];
+
+      window.onresize();
+      socket = io.connect('http://46.250.130.124:8000');            
+      //setInterval(sendUpdate, 500);
+  	  //socket.emit('updateBacteria', {x:Math.random(), y:Math.random()});
+    });
+</script>
+</html>

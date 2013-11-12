@@ -1,0 +1,2 @@
+install python http://www.python.org/download/releases/2.7.6/
+npm install express socket.io osc-min
