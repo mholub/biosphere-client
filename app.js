@@ -11,11 +11,20 @@ var bacterias = {};
 var OSC_HOST = 'localhost';
 var OSC_PORT = 3333;
 
-//setInterval(timeoutBacterias, 1000);
+setInterval(timeoutBacterias, 1000);
+var idsCounter = 0;
 
 function updateBacteria(key, bacteria, date) {
 	bacteria.lastModificationDate = date;
+	var t_id;
+	if (bacterias[key]) {
+		t_id = bacterias[key].t_id;
+	} else {
+		t_id = idsCounter++;	
+	}
+	bacteria.t_id = t_id;
 	bacterias[key] = bacteria;
+
 
 	notifyOSC();
 }
@@ -27,21 +36,24 @@ function removeBacteria(key) {
 
 function timeoutBacterias() {
 	var currentDate = new Date();
-	Object.keys(bacterias).filter(function (v) {		
-		console.log(currentDate.getTime() - bacterias[v].lastModificationDate.getTime());
+	var isModified = false;
+	Object.keys(bacterias).filter(function (v) {				
     	return (currentDate.getTime() - bacterias[v].lastModificationDate.getTime() > 3000);
 	}).forEach(function (v) {
+		isModified = true;
     	delete bacterias[v];
 	});
-	notifyOSC();
+	if (isModified)
+		notifyOSC();
 }
 
 function notifyOSC() {
   var joinedArgs = [];
   Object.keys(bacterias).forEach(function(k) {
-  	joinedArgs.push(k);
+  	joinedArgs.push(bacterias[k].t_id);
   	joinedArgs.push(bacterias[k].x);
   	joinedArgs.push(bacterias[k].y);
+  	joinedArgs.push(parseInt(bacterias[k].h));
   });
 
   console.log("current state: " + joinedArgs);
@@ -65,5 +77,6 @@ io.sockets.on('connection', function (socket) {
   socket.on('updateBacteria', function (bacteria) {
     updateBacteria(socket.id, bacteria, new Date());
   });
+  socket.on('removeBacteria', function () { removeBacteria(socket.id); });
   socket.on('disconnect', function () { removeBacteria(socket.id); });
 });
