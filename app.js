@@ -54,6 +54,7 @@ function notifyOSC() {
   	joinedArgs.push(bacterias[k].x);
   	joinedArgs.push(bacterias[k].y);
   	joinedArgs.push(parseInt(bacterias[k].h));
+  	joinedArgs.push(parseFloat(bacterias[k].a));
   });
 
   console.log("current state: " + joinedArgs);

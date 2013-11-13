@@ -17,22 +17,32 @@
 	    }
 	    html, body {margin: 0; padding: 0; overflow: hidden}
 	    #pointer { 
-	    	position: absolute; top:-1000px; left:-1000px; width: 50px; margin-left: -25px; margin-top: -25px;
+	    	position: absolute; top:-1000px; left:-1000px; margin-left: -25px; margin-top: -25px;
 	    	width: 50px;
 	    	height: 50px;
 	    	border-radius: 25px;
 	    	display: none;
+	    }
+	    #compass { 
+	    	position: absolute; top:-1000px; left:-1000px; margin-left: -5px; margin-top: -5px;
+	    	width: 10px;
+	    	height: 10px;
+	    	border-radius: 5px;
+	    	background-color: black;
 	    }
 	</style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
 <div id="pointer"></div>
+<div id="compass"></div>
 </body>
 
 <script type="text/javascript">
 	lastPoint = [null, null];
 	isHueDrag = false;
+	lastAlpha = 0;
+	orientation = 0;
 
 	function touchStart(event) {
 		var touch = event;
@@ -113,9 +123,19 @@
 		bacteria.show();
 	}
 
+	function drawCompassPointer() {
+		
+
+			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha + 90 - orientation);
+			var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha + 90 - orientation);
+			compass.css('top', y);
+			compass.css('left', x);
+		
+	}
+
 	function sendUpdate() {
 		if (lastPoint[0] && !isHueDrag) {
-			socket.emit('updateBacteria', {x:lastPoint[0], y:lastPoint[1], h: hue});
+			socket.emit('updateBacteria', {x:lastPoint[0], y:lastPoint[1], h: hue, a:lastAlpha});
 		}		
 	}
 
@@ -156,11 +176,28 @@
     document.body.addEventListener('touchend', touchEnd, false);
     document.body.addEventListener('mouseup', touchEnd, false);
 
+    var i = 0;
+    window.addEventListener("deviceorientation", function(event) {
+    	//if (i++ < 100)
+          
+          lastAlpha = event.alpha / 360 * (2 * Math.PI);
+          console.log(lastAlpha);
+          drawCompassPointer();
+      }, true);
+
+    window.addEventListener("compassneedscalibration", function(event) {
+          alert('Your compass needs calibrating! Wave your device in a figure-eight motion');
+          event.preventDefault();
+      }, true);
+    
+
     window.onresize = function() {
+      orientation = window.orientation;
       $(document.body).width(window.innerWidth).height(window.innerHeight);
       $("#canvas").remove();
       $(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
       bacteria = $('#pointer');
+      compass = $('#compass');
       drawCircle();
     }
 
