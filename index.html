@@ -39,6 +39,8 @@
 </body>
 
 <script type="text/javascript">
+	compassEnabled = false;
+
 	lastPoint = [null, null];
 	isHueDrag = false;
 	lastAlpha = 0;
@@ -127,8 +129,8 @@
 	function drawCompassPointer() {
 		
 
-		var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha - Math.PI/2);
-		var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha - Math.PI/2);
+		var x = window.innerWidth/2 + 1.05 * circleRadius * Math.cos(lastAlpha - Math.PI/2);
+		var y = window.innerHeight/2 + 1.05 * circleRadius * Math.sin(lastAlpha - Math.PI/2);
 		compass.css('top', y);
 		compass.css('left', x);
 		
@@ -178,13 +180,17 @@
 	document.body.addEventListener('mouseup', touchEnd, false);
 
 	window.onresize = function() {
-		orientation = window.orientation * Math.PI / 180;
 		$(document.body).width(window.innerWidth).height(window.innerHeight);
 		$("#canvas").remove();
 		$(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
 		bacteria = $('#pointer');
 		compass = $('#compass');
 		drawCircle();
+		drawCompassPointer();
+		// if (!compassEnabled) {
+		// 	lastAlpha = window.orientation * Math.PI / 180;
+		// 	drawCompassPointer();
+		// }
 	}
 
 	window.onresize();
@@ -199,50 +205,54 @@
 	var newColor = jQuery.Color({hue: 360 * Math.random(), saturation: 1, lightness: 0.5});
 	updateColor(newColor);
 
-	window.setTimeout(function () {
-		var dir = 0,
-		ref = 0;
+	if (compassEnabled) {
+		window.setTimeout(function () {
+				var dir = 0,
+				ref = 0;
 
-		if ('ondeviceorientation' in window) {
+				if ('ondeviceorientation' in window) {
 
-			window.addEventListener('deviceorientation', function(e) {
-				var direction, delta, heading;
+					window.addEventListener('deviceorientation', function(e) {
+						var direction, delta, heading;
 
-				if (typeof e.webkitCompassHeading !== 'undefined') {
-					direction = e.webkitCompassHeading;
-					if (typeof window.orientation !== 'undefined') {
-						direction += window.orientation;
-					}
-				} else {
-                // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
-                direction = 360 - e.alpha;
-            }
+						if (typeof e.webkitCompassHeading !== 'undefined') {
+							direction = e.webkitCompassHeading;
+							if (typeof window.orientation !== 'undefined') {
+								direction += window.orientation;
+							}
+						} else {
+		                // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
+		                direction = 360 - e.alpha;
+		            }
 
-            delta = direction - ref;
-            ref = direction;
-            if (delta < -180)
-            	delta += 360;
-            if (delta > 180)
-            	delta -= 360;
-            dir += delta;
+		            delta = direction - ref;
+		            ref = direction;
+		            if (delta < -180)
+		            	delta += 360;
+		            if (delta > 180)
+		            	delta -= 360;
+		            dir += delta;
 
-            heading = direction;
-            while (heading >= 360) {
-            	heading -= 360;
-            }
-            while (heading < 0) {
-            	heading += 360;
-            }
-            heading = Math.round(heading);          
+		            heading = direction;
+		            while (heading >= 360) {
+		            	heading -= 360;
+		            }
+		            while (heading < 0) {
+		            	heading += 360;
+		            }
+		            heading = Math.round(heading);          
 
-			lastAlpha = -dir * Math.PI / 180.0;
-			drawCompassPointer();  
-        });
-
-			window.setInterval(function() {
-			}, 100);
-		}			
-	}, 200);
+					lastAlpha = -dir * Math.PI / 180.0;
+					drawCompassPointer();  
+		        });
+				}			
+			}, 200);
+	} else {
+		// window.addEventListener('orientationchange', function(event) {
+		// 	lastAlpha = -window.orientation * Math.PI / 180;
+		// 	drawCompassPointer();
+		// }, false);
+	}
 
 });
 </script>
