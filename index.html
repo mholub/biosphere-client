@@ -4,44 +4,45 @@
 	<title>Biosphere</title>
 	<meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 	<meta name="apple-mobile-web-app-capable" content="yes">
-  	<meta name="apple-touch-fullscreen" content="yes">
-  	<meta name="HandheldFriendly" content="true" />
+	<meta name="apple-touch-fullscreen" content="yes">
+	<meta name="HandheldFriendly" content="true" />
 	<script type="text/javascript" src="scripts/jquery-1.6.4.min.js"></script>
 	<script type="text/javascript" src="scripts/jquery.color-2.1.2.min.js"></script>	
 	<script type="text/javascript" src="scripts/jquery.touchy.min.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<style type="text/css">
 		* {
-	      -webkit-touch-callout: none; 
-	      -webkit-user-select: none;
-	    }
-	    html, body {margin: 0; padding: 0; overflow: hidden}
-	    #pointer { 
-	    	position: absolute; top:-1000px; left:-1000px; margin-left: -25px; margin-top: -25px;
-	    	width: 50px;
-	    	height: 50px;
-	    	border-radius: 25px;
-	    	display: none;
-	    }
-	    #compass { 
-	    	position: absolute; top:-1000px; left:-1000px; margin-left: -5px; margin-top: -5px;
-	    	width: 10px;
-	    	height: 10px;
-	    	border-radius: 5px;
-	    	background-color: black;
-	    }
+			-webkit-touch-callout: none; 
+			-webkit-user-select: none;
+		}
+		html, body {margin: 0; padding: 0; overflow: hidden}
+		#pointer { 
+			position: absolute; top:-1000px; left:-1000px; margin-left: -25px; margin-top: -25px;
+			width: 50px;
+			height: 50px;
+			border-radius: 25px;
+			display: none;
+		}
+		#compass { 
+			position: absolute; top:-1000px; left:-1000px; margin-left: -5px; margin-top: -5px;
+			width: 10px;
+			height: 10px;
+			border-radius: 5px;
+			background-color: black;
+		}
 	</style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
-<div id="pointer"></div>
-<div id="compass"></div>
+	<canvas id="canvas"></canvas>
+	<div id="pointer"></div>
+	<div id="compass"></div>
 </body>
 
 <script type="text/javascript">
 	lastPoint = [null, null];
 	isHueDrag = false;
 	lastAlpha = 0;
+	theta = 0;
 	orientation = 0;
 
 	function touchStart(event) {
@@ -75,14 +76,14 @@
 		}
 
 		if (isHueDrag) {
-	      	var delta = (lastPoint[0] - startPageX) / circleRadius - (lastPoint[1] - startPageY) / circleRadius;
-	      	var newColor = jQuery.Color({hue: startHue + delta * 100, saturation: 1, lightness: 0.5});
-	      	updateColor(newColor);
-	 		lastPoint = [touch.pageX, touch.pageY];
-      	} else {
-      		updatePointer(touch.pageX, touch.pageY);
-      	}     	      	
-      	event.preventDefault();
+			var delta = (lastPoint[0] - startPageX) / circleRadius - (lastPoint[1] - startPageY) / circleRadius;
+			var newColor = jQuery.Color({hue: startHue + delta * 100, saturation: 1, lightness: 0.5});
+			updateColor(newColor);
+			lastPoint = [touch.pageX, touch.pageY];
+		} else {
+			updatePointer(touch.pageX, touch.pageY);
+		}     	      	
+		event.preventDefault();
 	}
 	function touchEnd(event) {
 		lastPoint = [null, null];
@@ -106,8 +107,8 @@
 
 	function updatePointer(x, y) {
 		lastPoint = [(x - window.innerWidth/2)/circleRadius, -(y - window.innerHeight/2)/circleRadius];
-      	drawLastPoint();
-      	sendUpdate();
+		drawLastPoint();
+		sendUpdate();
 	}
 
 	function removePointer() {
@@ -115,7 +116,7 @@
 		socket.emit('removeBacteria');
 	}
 
-    function drawLastPoint() {
+	function drawLastPoint() {
 		var x = window.innerWidth/2 + lastPoint[0] * circleRadius;
 		var y = window.innerHeight/2 - lastPoint[1] * circleRadius;
 		bacteria.css('top', y);
@@ -126,10 +127,10 @@
 	function drawCompassPointer() {
 		
 
-			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha - Math.PI/2 - orientation);
-			var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha - Math.PI/2 - orientation);
-			compass.css('top', y);
-			compass.css('left', x);
+		var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha - Math.PI/2);
+		var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha - Math.PI/2);
+		compass.css('top', y);
+		compass.css('left', x);
 		
 	}
 
@@ -141,28 +142,28 @@
 
 	function drawCircle() {
 		var canvas = document.getElementById('canvas');
-	    var context = canvas.getContext('2d');
+		var context = canvas.getContext('2d');
 
-	    circleRadius = 0.90 * Math.min(canvas.width/2, canvas.height/2);
-	    var centerX = canvas.width / 2;
-	    var centerY = canvas.height / 2;
-	      context.beginPath();
-	      context.arc(centerX, centerY, circleRadius, 0, 2 * Math.PI, false);
-	      context.fillStyle = 'black';
-	      context.fill();
+		circleRadius = 0.90 * Math.min(canvas.width/2, canvas.height/2);
+		var centerX = canvas.width / 2;
+		var centerY = canvas.height / 2;
+		context.beginPath();
+		context.arc(centerX, centerY, circleRadius, 0, 2 * Math.PI, false);
+		context.fillStyle = 'black';
+		context.fill();
 	      // context.lineWidth = 5;
 	      // context.strokeStyle = '#003300';
 	      // context.stroke();
-	}
+	  }
 
-	function insideCircle(x, y) {
-		var canvas = document.getElementById('canvas');
-	    var centerX = canvas.width / 2;
-	    var centerY = canvas.height / 2;
-	    return (x - centerX)*(x - centerX) + (y - centerY)*(y - centerY) < circleRadius * circleRadius;
-	}
- 
-    $(function() {
+	  function insideCircle(x, y) {
+	  	var canvas = document.getElementById('canvas');
+	  	var centerX = canvas.width / 2;
+	  	var centerY = canvas.height / 2;
+	  	return (x - centerX)*(x - centerX) + (y - centerY)*(y - centerY) < circleRadius * circleRadius;
+	  }
+
+	  $(function() {
 
 	//$(document.body).bind('touchy-drag', handleTouchyDrag);
 
@@ -173,55 +174,76 @@
 	document.body.addEventListener('mousemove', touchMove, false);
 
 	
-    document.body.addEventListener('touchend', touchEnd, false);
-    document.body.addEventListener('mouseup', touchEnd, false);
+	document.body.addEventListener('touchend', touchEnd, false);
+	document.body.addEventListener('mouseup', touchEnd, false);
 
-    var i = 0;
-    // window.addEventListener("deviceorientation", function(event) {
-    // 	//if (i++ < 100)
-    //       lastAlpha = (360 - (event.alpha - window.orientation)) / 360 * (2 * Math.PI);
-    //       if (i++ % 100 == 0) {
-    //       	console.log(window.orientation + " " + event.alpha + " " + lastAlpha);
-    //       	console.log();
-    //       	console.debug(event);
-    //       }
-          	
-    //       drawCompassPointer();
-    //   }, true);
-
-    // window.addEventListener("compassneedscalibration", function(event) {
-    //       alert('Your compass needs calibrating! Wave your device in a figure-eight motion');
-    //       event.preventDefault();
-    //   }, true);
-
-    // window.addEventListener("onorientationchange", function(event) {
-    // 	orientation = window.orientation * Math.PI / 180;
-    // }, true);
-    
-
-    window.onresize = function() {
-      orientation = window.orientation * Math.PI / 180;
-      $(document.body).width(window.innerWidth).height(window.innerHeight);
-      $("#canvas").remove();
-      $(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
-      bacteria = $('#pointer');
-      compass = $('#compass');
-      drawCircle();
-    }
+	window.onresize = function() {
+		orientation = window.orientation * Math.PI / 180;
+		$(document.body).width(window.innerWidth).height(window.innerHeight);
+		$("#canvas").remove();
+		$(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
+		bacteria = $('#pointer');
+		compass = $('#compass');
+		drawCircle();
+	}
 
 	window.onresize();
 
 
-      var r = 0.9 * Math.random();
-      var angle = 2 * Math.random() * Math.PI;
+	var r = 0.9 * Math.random();
+	var angle = 2 * Math.random() * Math.PI;
 
-      
-      socket = io.connect('http://localhost:8000');            
-      setInterval(sendUpdate, 1000);
-      	var newColor = jQuery.Color({hue: 360 * Math.random(), saturation: 1, lightness: 0.5});
+
+	socket = io.connect('http://192.168.0.102:8000');            
+	setInterval(sendUpdate, 1000);
+	var newColor = jQuery.Color({hue: 360 * Math.random(), saturation: 1, lightness: 0.5});
 	updateColor(newColor);
 
-  	  //socket.emit('updateBacteria', {x:Math.random(), y:Math.random()});
-    });
+	window.setTimeout(function () {
+		var dir = 0,
+		ref = 0;
+
+		if ('ondeviceorientation' in window) {
+
+			window.addEventListener('deviceorientation', function(e) {
+				var direction, delta, heading;
+
+				if (typeof e.webkitCompassHeading !== 'undefined') {
+					direction = e.webkitCompassHeading;
+					if (typeof window.orientation !== 'undefined') {
+						direction += window.orientation;
+					}
+				} else {
+                // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
+                direction = 360 - e.alpha;
+            }
+
+            delta = direction - ref;
+            ref = direction;
+            if (delta < -180)
+            	delta += 360;
+            if (delta > 180)
+            	delta -= 360;
+            dir += delta;
+
+            heading = direction;
+            while (heading >= 360) {
+            	heading -= 360;
+            }
+            while (heading < 0) {
+            	heading += 360;
+            }
+            heading = Math.round(heading);          
+
+			lastAlpha = -dir * Math.PI / 180.0;
+			drawCompassPointer();  
+        });
+
+			window.setInterval(function() {
+			}, 100);
+		}			
+	}, 200);
+
+});
 </script>
 </html>
