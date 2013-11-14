@@ -1,7 +1,7 @@
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io')
+  , io = require('socket.io').listen(server)
   , osc = require('osc-min')
     udp = require('dgram').createSocket('udp4');
 
@@ -69,7 +69,11 @@ function notifyOSC() {
 }
 
 server.listen(port);
-io = io.listen(socketIOPort);
+io.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling', 'flashsocket']);
+io.enable('browser client minification');  // send minified client
+io.enable('browser client etag');          // apply etag caching logic based on version number
+io.enable('browser client gzip');          // gzip the file
+
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');

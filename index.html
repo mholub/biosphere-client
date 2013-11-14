@@ -6,10 +6,10 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
   	<meta name="apple-touch-fullscreen" content="yes">
   	<meta name="HandheldFriendly" content="true" />
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>	
+	<script type="text/javascript" src="scripts/jquery-1.6.4.min.js"></script>
+	<script type="text/javascript" src="scripts/jquery.color-2.1.2.min.js"></script>	
 	<script type="text/javascript" src="scripts/jquery.touchy.min.js"></script>
-	<script src="http://localhost:8001/socket.io/socket.io.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<style type="text/css">
 		* {
 	      -webkit-touch-callout: none; 
@@ -126,8 +126,8 @@
 	function drawCompassPointer() {
 		
 
-			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha + 90 - orientation);
-			var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha + 90 - orientation);
+			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha - Math.PI/2 - orientation);
+			var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha - Math.PI/2 - orientation);
 			compass.css('top', y);
 			compass.css('left', x);
 		
@@ -208,7 +208,7 @@
       var angle = 2 * Math.random() * Math.PI;
 
       
-      socket = io.connect('http://localhost:8001');            
+      socket = io.connect('http://localhost:8000');            
       setInterval(sendUpdate, 1000);
       	var newColor = jQuery.Color({hue: 360 * Math.random(), saturation: 1, lightness: 0.5});
 	updateColor(newColor);
