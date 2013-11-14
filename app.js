@@ -6,6 +6,7 @@ var express = require('express')
     udp = require('dgram').createSocket('udp4');
 
 var port = 8000;
+var socketIOPort = 8001;
 var bacterias = {};
 
 var OSC_HOST = 'localhost';
@@ -68,6 +69,11 @@ function notifyOSC() {
 }
 
 server.listen(port);
+//io.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling', 'flashsocket']);
+// io.enable('browser client minification');  // send minified client
+// io.enable('browser client etag');          // apply etag caching logic based on version number
+// io.enable('browser client gzip');          // gzip the file
+
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
