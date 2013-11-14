@@ -70,9 +70,9 @@ function notifyOSC() {
 
 server.listen(port);
 io.set('transports', ['websocket', 'htmlfile', 'xhr-polling', 'jsonp-polling', 'flashsocket']);
-io.enable('browser client minification');  // send minified client
-io.enable('browser client etag');          // apply etag caching logic based on version number
-io.enable('browser client gzip');          // gzip the file
+// io.enable('browser client minification');  // send minified client
+// io.enable('browser client etag');          // apply etag caching logic based on version number
+// io.enable('browser client gzip');          // gzip the file
 
 
 app.get('/', function (req, res) {
