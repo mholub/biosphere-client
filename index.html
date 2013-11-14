@@ -9,7 +9,7 @@
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
 	<script type="text/javascript" src="http://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>	
 	<script type="text/javascript" src="scripts/jquery.touchy.min.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
+	<script src="http://localhost:8001/socket.io/socket.io.js"></script>
 	<style type="text/css">
 		* {
 	      -webkit-touch-callout: none; 
@@ -208,7 +208,7 @@
       var angle = 2 * Math.random() * Math.PI;
 
       
-      socket = io.connect('http://192.168.0.102:8000');            
+      socket = io.connect('http://localhost:8001');            
       setInterval(sendUpdate, 1000);
       	var newColor = jQuery.Color({hue: 360 * Math.random(), saturation: 1, lightness: 0.5});
 	updateColor(newColor);

@@ -1,11 +1,12 @@
 var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
-  , io = require('socket.io').listen(server)
+  , io = require('socket.io')
   , osc = require('osc-min')
     udp = require('dgram').createSocket('udp4');
 
 var port = 8000;
+var socketIOPort = 8001;
 var bacterias = {};
 
 var OSC_HOST = 'localhost';
@@ -68,6 +69,7 @@ function notifyOSC() {
 }
 
 server.listen(port);
+io = io.listen(socketIOPort);
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
