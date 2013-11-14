@@ -126,8 +126,8 @@
 	function drawCompassPointer() {
 		
 
-			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha + 90 - orientation);
-			var y = window.innerHeight/2 + 1.07 * circleRadius * Math.sin(lastAlpha + 90 - orientation);
+			var x = window.innerWidth/2 + 1.07 * circleRadius * Math.cos(lastAlpha);
+			var y = window.innerHeight/2 - 1.07 * circleRadius * Math.sin(lastAlpha);
 			compass.css('top', y);
 			compass.css('left', x);
 		
@@ -177,22 +177,30 @@
     document.body.addEventListener('mouseup', touchEnd, false);
 
     var i = 0;
-    window.addEventListener("deviceorientation", function(event) {
-    	//if (i++ < 100)
-          
-          lastAlpha = event.alpha / 360 * (2 * Math.PI);
-          console.log(lastAlpha);
-          drawCompassPointer();
-      }, true);
+    // window.addEventListener("deviceorientation", function(event) {
+    // 	//if (i++ < 100)
+    //       lastAlpha = (360 - (event.alpha - window.orientation)) / 360 * (2 * Math.PI);
+    //       if (i++ % 100 == 0) {
+    //       	console.log(window.orientation + " " + event.alpha + " " + lastAlpha);
+    //       	console.log();
+    //       	console.debug(event);
+    //       }
+          	
+    //       drawCompassPointer();
+    //   }, true);
 
-    window.addEventListener("compassneedscalibration", function(event) {
-          alert('Your compass needs calibrating! Wave your device in a figure-eight motion');
-          event.preventDefault();
-      }, true);
+    // window.addEventListener("compassneedscalibration", function(event) {
+    //       alert('Your compass needs calibrating! Wave your device in a figure-eight motion');
+    //       event.preventDefault();
+    //   }, true);
+
+    // window.addEventListener("onorientationchange", function(event) {
+    // 	orientation = window.orientation * Math.PI / 180;
+    // }, true);
     
 
     window.onresize = function() {
-      orientation = window.orientation;
+      orientation = window.orientation * Math.PI / 180;
       $(document.body).width(window.innerWidth).height(window.innerHeight);
       $("#canvas").remove();
       $(document.body).append($("<canvas id='canvas' width='" + window.innerWidth + "' height='" + window.innerHeight + "'></canvas>"));
