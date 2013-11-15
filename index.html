@@ -217,13 +217,13 @@
 
 						if (typeof e.webkitCompassHeading !== 'undefined') {
 							direction = e.webkitCompassHeading;
-							if (typeof window.orientation !== 'undefined') {
-								direction += window.orientation;
-							}
 						} else {
-		                // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
-		                direction = 360 - e.alpha;
-		            }
+		    	            // http://dev.w3.org/geo/api/spec-source-orientation.html#deviceorientation
+			                direction = 360 - e.alpha;
+			            }
+						if (typeof window.orientation !== 'undefined') {
+							direction += window.orientation;
+						}
 
 		            delta = direction - ref;
 		            ref = direction;
@@ -240,9 +240,9 @@
 		            while (heading < 0) {
 		            	heading += 360;
 		            }
-		            heading = Math.round(heading);          
 
 					lastAlpha = -dir * Math.PI / 180.0;
+					console.log(lastAlpha);
 					drawCompassPointer();  
 		        });
 				}			
